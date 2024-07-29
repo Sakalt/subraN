@@ -5,7 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SNSサイト</title>
     <style>
-        /* スタイルは変わらないので省略します */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .post-form {
+            margin-bottom: 20px;
+        }
+        .post-form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .post-form input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .post-form input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .post-form button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .post {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .post:last-child {
+            border-bottom: none;
+        }
+        .post-author {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .post-content {
+            margin-bottom: 10px;
+        }
+        .post-image {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
+        .comment-form {
+            margin-top: 10px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            height: 50px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .comment-form button {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .link-section a {
+            color: #333;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .link-section a:hover {
+            text-decoration: underline;
+        }
+        .terms, .blacklist {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .terms h3, .blacklist h3 {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+        .account-info {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -54,29 +170,24 @@
         const POSTS_KEY = 'posts';
         const CURRENT_USER_KEY = 'currentUser';
 
-        // ローカルストレージから投稿データを読み込む
         function loadPosts() {
-            const posts = JSON.parse(localStorage.getItem(POSTS_KEY)) || [];
-            return posts;
+            return JSON.parse(localStorage.getItem(POSTS_KEY)) || [];
         }
 
-        // ローカルストレージに投稿データを保存する
         function savePosts(posts) {
             localStorage.setItem(POSTS_KEY, JSON.stringify(posts));
         }
 
-        // 現在のユーザーを設定する
         function setCurrentUser(username) {
             localStorage.setItem(CURRENT_USER_KEY, username);
             document.getElementById('usernameDisplay').textContent = username;
         }
 
-        // 現在のユーザーを取得する
         function getCurrentUser() {
             return localStorage.getItem(CURRENT_USER_KEY) || '';
         }
 
-        let posts = loadPosts(); // 初期データとしてローカルストレージから読み込み
+        let posts = loadPosts(); 
 
         function addPost() {
             const username = document.getElementById('usernameInput').value.trim();
@@ -93,7 +204,7 @@
                 return;
             }
 
-            setCurrentUser(username); // 現在のユーザーを設定
+            setCurrentUser(username); 
 
             const post = {
                 author: username,
@@ -101,8 +212,8 @@
                 image: imageInput.files.length > 0 ? URL.createObjectURL(imageInput.files[0]) : null
             };
 
-            posts.unshift(post); // 新しい投稿を先頭に追加
-            savePosts(posts); // データをローカルストレージに保存
+            posts.unshift(post); 
+            savePosts(posts); 
 
             displayPosts();
 
@@ -115,9 +226,7 @@
             const postsContainer = document.getElementById('postsContainer');
             postsContainer.innerHTML = '';
 
-            const currentUser = getCurrentUser();
-            const userPosts = posts.filter(post => post.author === currentUser);
-            const recentPosts = userPosts.slice(0, 25); // 新着25件のみ表示
+            const recentPosts = posts.slice(0, 25); 
 
             recentPosts.forEach(post => {
                 const postDiv = document.createElement('div');
@@ -172,9 +281,7 @@
 
         function searchPosts() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            const currentUser = getCurrentUser();
-            const userPosts = posts.filter(post => post.author === currentUser);
-            const filteredPosts = userPosts.filter(post => 
+            const filteredPosts = posts.filter(post => 
                 post.content.toLowerCase().includes(query) || post.author.toLowerCase().includes(query)
             );
             displayFilteredPosts(filteredPosts);
@@ -184,7 +291,9 @@
             const postsContainer = document.getElementById('postsContainer');
             postsContainer.innerHTML = '';
 
-            filteredPosts.forEach(post => {
+            const recentPosts = filteredPosts.slice(0, 25); 
+
+            recentPosts.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post';
 
@@ -217,14 +326,8 @@
             });
         }
 
-        function logout() {
-            localStorage.removeItem(CURRENT_USER_KEY); // ログアウト処理（ユーザー名を削除）
-            window.location.reload(); // ページをリロードして状態をリセット
-        }
-
         document.getElementById('searchInput').addEventListener('input', searchPosts);
 
-        // 初期表示
         displayPosts();
     </script>
 </body>
