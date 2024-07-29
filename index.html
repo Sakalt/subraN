@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SNSサイト</title>
     <style>
-        /* CSSは前回と同様、または適宜追加 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -29,6 +28,16 @@
         .post-form textarea {
             width: 100%;
             height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .post-form input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .post-form input[type="text"] {
+            width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -113,7 +122,7 @@
 </head>
 <body>
     <header>
-        <h1>Subran</h1>
+        <h1>SNSサイト</h1>
     </header>
     <div class="container">
         <div class="search-bar">
@@ -121,6 +130,7 @@
         </div>
 
         <div class="post-form">
+            <input type="text" id="usernameInput" placeholder="ユーザー名を入力してください...">
             <textarea id="postContent" placeholder="ここに投稿を入力してください..."></textarea>
             <input type="file" id="postImage" accept="image/*">
             <button onclick="addPost()">投稿する</button>
@@ -147,18 +157,37 @@
 
         <div class="account-info">
             <h3>アカウント情報</h3>
-            <p>ユーザー名: <span id="username">ユーザー名</span></p>
+            <p>ユーザー名: <span id="usernameDisplay">ユーザー名</span></p>
             <button onclick="logout()">ログアウト</button>
         </div>
     </div>
 
     <script>
-        let posts = []; // 投稿データを保持する配列
+        // 投稿データを保存するキー
+        const POSTS_KEY = 'posts';
+
+        // ローカルストレージから投稿データを読み込む
+        function loadPosts() {
+            const posts = JSON.parse(localStorage.getItem(POSTS_KEY)) || [];
+            return posts;
+        }
+
+        // ローカルストレージに投稿データを保存する
+        function savePosts(posts) {
+            localStorage.setItem(POSTS_KEY, JSON.stringify(posts));
+        }
+
+        let posts = loadPosts(); // 初期データとしてローカルストレージから読み込み
 
         function addPost() {
+            const username = document.getElementById('usernameInput').value.trim();
             const content = document.getElementById('postContent').value;
             const imageInput = document.getElementById('postImage');
-            const postsContainer = document.getElementById('postsContainer');
+
+            if (username === '') {
+                alert('ユーザー名を入力してください');
+                return;
+            }
 
             if (content.trim() === '') {
                 alert('投稿内容を入力してください');
@@ -166,15 +195,17 @@
             }
 
             const post = {
-                author: 'ユーザー名', // 固定のユーザー名を表示
+                author: username,
                 content: content,
                 image: imageInput.files.length > 0 ? URL.createObjectURL(imageInput.files[0]) : null
             };
 
             posts.unshift(post); // 新しい投稿を先頭に追加
+            savePosts(posts); // データをローカルストレージに保存
 
             displayPosts();
 
+            document.getElementById('usernameInput').value = '';
             document.getElementById('postContent').value = '';
             imageInput.value = '';
         }
@@ -287,6 +318,9 @@
         }
 
         document.getElementById('searchInput').addEventListener('input', searchPosts);
+
+        // 初期表示
+        displayPosts();
     </script>
 </body>
 </html>
