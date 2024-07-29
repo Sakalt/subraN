@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNSサイト</title>
+    <style>
+        /* CSSは前回と同様、または適宜追加 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .post-form textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .post-form button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .post {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .post:last-child {
+            border-bottom: none;
+        }
+        .post-author {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .post-content {
+            margin-bottom: 10px;
+        }
+        .post-image {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+        }
+        .comment-form {
+            margin-top: 10px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            height: 50px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .comment-form button {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .link-section a {
+            color: #333;
+            text-decoration: none;
+        }
+        .link-section a:hover {
+            text-decoration: underline;
+        }
+        .terms, .blacklist {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .terms h3, .blacklist h3 {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+        .account-info {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Subran</h1>
+    </header>
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="ユーザーや投稿を検索...">
+        </div>
+
+        <div class="post-form">
+            <textarea id="postContent" placeholder="ここに投稿を入力してください..."></textarea>
+            <input type="file" id="postImage" accept="image/*">
+            <button onclick="addPost()">投稿する</button>
+        </div>
+
+        <div id="postsContainer">
+            <!-- 投稿がここに表示されます -->
+        </div>
+
+        <div class="link-section">
+            <a href="#">利用規約</a>
+            <a href="#">プライバシーポリシー</a>
+        </div>
+
+        <div class="terms">
+            <h3>利用規約</h3>
+            <p>基本的な利用規約をここに記載します。</p>
+        </div>
+
+        <div class="blacklist">
+            <h3>ブラックリスト</h3>
+            <p>ブラックリストの内容をここに記載します。</p>
+        </div>
+
+        <div class="account-info">
+            <h3>アカウント情報</h3>
+            <p>ユーザー名: <span id="username">ユーザー名</span></p>
+            <button onclick="logout()">ログアウト</button>
+        </div>
+    </div>
+
+    <script>
+        let posts = []; // 投稿データを保持する配列
+
+        function addPost() {
+            const content = document.getElementById('postContent').value;
+            const imageInput = document.getElementById('postImage');
+            const postsContainer = document.getElementById('postsContainer');
+
+            if (content.trim() === '') {
+                alert('投稿内容を入力してください');
+                return;
+            }
+
+            const post = {
+                author: 'ユーザー名', // 固定のユーザー名を表示
+                content: content,
+                image: imageInput.files.length > 0 ? URL.createObjectURL(imageInput.files[0]) : null
+            };
+
+            posts.unshift(post); // 新しい投稿を先頭に追加
+
+            displayPosts();
+
+            document.getElementById('postContent').value = '';
+            imageInput.value = '';
+        }
+
+        function displayPosts() {
+            const postsContainer = document.getElementById('postsContainer');
+            postsContainer.innerHTML = '';
+
+            const recentPosts = posts.slice(0, 25); // 新着25件のみ表示
+
+            recentPosts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post';
+
+                const postAuthor = document.createElement('div');
+                postAuthor.className = 'post-author';
+                postAuthor.textContent = post.author;
+                postDiv.appendChild(postAuthor);
+
+                const postContent = document.createElement('div');
+                postContent.className = 'post-content';
+                postContent.textContent = post.content;
+                postDiv.appendChild(postContent);
+
+                if (post.image) {
+                    const postImage = document.createElement('img');
+                    postImage.className = 'post-image';
+                    postImage.src = post.image;
+                    postDiv.appendChild(postImage);
+                }
+
+                const commentForm = document.createElement('div');
+                commentForm.className = 'comment-form';
+                commentForm.innerHTML = `
+                    <textarea placeholder="コメントを追加..."></textarea>
+                    <button onclick="addComment(this)">コメントする</button>
+                `;
+                postDiv.appendChild(commentForm);
+
+                postsContainer.appendChild(postDiv);
+            });
+        }
+
+        function addComment(button) {
+            const commentTextarea = button.previousElementSibling;
+            const commentContent = commentTextarea.value;
+            if (commentContent.trim() === '') {
+                alert('コメント内容を入力してください');
+                return;
+            }
+
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+            commentDiv.textContent = commentContent;
+
+            const postDiv = button.parentElement.parentElement;
+            postDiv.appendChild(commentDiv);
+
+            commentTextarea.value = '';
+        }
+
+        function searchPosts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filteredPosts = posts.filter(post => 
+                post.content.toLowerCase().includes(query) || post.author.toLowerCase().includes(query)
+            );
+            displayFilteredPosts(filteredPosts);
+        }
+
+        function displayFilteredPosts(filteredPosts) {
+            const postsContainer = document.getElementById('postsContainer');
+            postsContainer.innerHTML = '';
+
+            filteredPosts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post';
+
+                const postAuthor = document.createElement('div');
+                postAuthor.className = 'post-author';
+                postAuthor.textContent = post.author;
+                postDiv.appendChild(postAuthor);
+
+                const postContent = document.createElement('div');
+                postContent.className = 'post-content';
+                postContent.textContent = post.content;
+                postDiv.appendChild(postContent);
+
+                if (post.image) {
+                    const postImage = document.createElement('img');
+                    postImage.className = 'post-image';
+                    postImage.src = post.image;
+                    postDiv.appendChild(postImage);
+                }
+
+                const commentForm = document.createElement('div');
+                commentForm.className = 'comment-form';
+                commentForm.innerHTML = `
+                    <textarea placeholder="コメントを追加..."></textarea>
+                    <button onclick="addComment(this)">コメントする</button>
+                `;
+                postDiv.appendChild(commentForm);
+
+                postsContainer.appendChild(postDiv);
+            });
+        }
+
+        function logout() {
+            // ログアウト処理（ここでは単にページをリロードするだけ）
+            window.location.reload();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', searchPosts);
+    </script>
+</body>
+</html>
